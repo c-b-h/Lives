@@ -1,0 +1,2 @@
+include ':lives'
+rootProject.name='Lives'
