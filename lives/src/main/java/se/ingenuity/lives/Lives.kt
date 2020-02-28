@@ -71,6 +71,74 @@ object Lives {
         return result
     }
 
+    fun <T1, T2, R> zip(
+        first: LiveData<out T1>,
+        second: LiveData<out T2>,
+        combineFunction: (T1, T2) -> R
+    ): LiveData<R> {
+        @Suppress("UNCHECKED_CAST")
+        return zip(
+            Array2Func(combineFunction),
+            first as LiveData<Any>,
+            second as LiveData<Any>
+        )
+    }
+
+    fun <T1, T2, T3, R> zip(
+        first: LiveData<out T1>,
+        second: LiveData<out T2>,
+        third: LiveData<out T3>,
+        combineFunction: (T1, T2, T3) -> R
+    ): LiveData<R> {
+        @Suppress("UNCHECKED_CAST")
+        return zip(
+            Array3Func(combineFunction),
+            first as LiveData<Any>,
+            second as LiveData<Any>,
+            third as LiveData<Any>
+        )
+    }
+
+    fun <T1, T2, T3, T4, R> zip(
+        first: LiveData<out T1>,
+        second: LiveData<out T2>,
+        third: LiveData<out T3>,
+        fourth: LiveData<out T4>,
+        combineFunction: (T1, T2, T3, T4) -> R
+    ): LiveData<R> {
+        @Suppress("UNCHECKED_CAST")
+        return zip(
+            Array4Func(combineFunction),
+            first as LiveData<Any>,
+            second as LiveData<Any>,
+            third as LiveData<Any>,
+            fourth as LiveData<Any>
+        )
+    }
+
+    private fun <T, R> zip(
+        combiner: (Array<in T>) -> R,
+        vararg sources: LiveData<T>
+    ): LiveData<R> {
+        val result: MediatorLiveData<R> = MediatorLiveData()
+
+        val values = arrayOfNulls<Any>(sources.size)
+        val emits = BooleanArray(sources.size)
+        sources.forEachIndexed { index, liveData ->
+            result.addSource(liveData) { value ->
+                emits[index] = true
+                values[index] = value
+
+                if (emits.all { it }) {
+                    emits.fill(false)
+                    result.postValue(combiner(values))
+                }
+            }
+        }
+
+        return result
+    }
+
     private class Array2Func<T1, T2, R>(
         private val f: (T1, T2) -> R
     ) : (Array<*>) -> R {
