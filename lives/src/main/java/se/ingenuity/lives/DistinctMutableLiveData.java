@@ -1,11 +1,11 @@
 package se.ingenuity.lives;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class DistinctMutableLiveData<T> extends LiveData<T> {
+public class DistinctMutableLiveData<T> extends MutableLiveData<T> {
     @NonNull
     private final Object dataLock = new Object();
 
