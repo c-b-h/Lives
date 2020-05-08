@@ -49,6 +49,25 @@ object Lives {
         )
     }
 
+    fun <T1, T2, T3, T4, T5, R> combineLatest(
+        first: LiveData<out T1>,
+        second: LiveData<out T2>,
+        third: LiveData<out T3>,
+        fourth: LiveData<out T4>,
+        fifth: LiveData<out T5>,
+        combineFunction: (T1, T2, T3, T4, T5) -> R
+    ): LiveData<R> {
+        @Suppress("UNCHECKED_CAST")
+        return combineLatest(
+            Array5Func(combineFunction),
+            first as LiveData<Any>,
+            second as LiveData<Any>,
+            third as LiveData<Any>,
+            fourth as LiveData<Any>,
+            fifth as LiveData<Any>
+        )
+    }
+
     private fun <T, R> combineLatest(
         combiner: (Array<in T>) -> R,
         vararg sources: LiveData<T>
@@ -168,4 +187,19 @@ object Lives {
             return f(a[0] as T1, a[1] as T2, a[2] as T3, a[3] as T4)
         }
     }
+
+    private class Array5Func<T1, T2, T3, T4, T5, R>(
+        private val f: (T1, T2, T3, T4, T5) -> R
+    ) : (Array<*>) -> R {
+        @Suppress("UNCHECKED_CAST")
+        override fun invoke(a: Array<*>): R {
+            require(a.size == 5) { "Array of size 5 expected but got " + a.size }
+            return f(a[0] as T1, a[1] as T2, a[2] as T3, a[3] as T4, a[4] as T5)
+        }
+    }
 }
+
+internal object EmptyLiveData : LiveData<Nothing>()
+
+@Suppress("UNCHECKED_CAST")
+fun <T> emptyLiveData(): LiveData<T> = EmptyLiveData as LiveData<T>
