@@ -203,3 +203,8 @@ internal object EmptyLiveData : LiveData<Nothing>()
 
 @Suppress("UNCHECKED_CAST")
 fun <T> emptyLiveData(): LiveData<T> = EmptyLiveData as LiveData<T>
+
+internal object NullLiveData : LiveData<Any?>(null)
+
+@Suppress("UNCHECKED_CAST")
+fun <T> nullLiveData(): LiveData<T?> = NullLiveData as LiveData<T?>
